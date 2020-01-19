@@ -1,4 +1,4 @@
-classdef LUT < multi_array.Array
+classdef LUT < multi_array.Range
     %LUT Lookup table approximation of y = f(x)
     %   
     %   Author: Dan Oates (WPI Class of 2020)
@@ -6,7 +6,7 @@ classdef LUT < multi_array.Array
     properties (SetAccess = protected)
         m;      % Input dimension [int]
         n;      % Output dimension [int]
-        domain; % Input domain [multi_array.Range]
+        tables; % Output tables [multi_array.Array]
     end
     
     methods (Access = public)
@@ -23,11 +23,13 @@ classdef LUT < multi_array.Array
             %   
             %   Function func must map [m x 1 to [n x 1].
             %   If no func is given, the table is zeroed.
-            if iscolumn(size_), size_ = size_.'; end
-            obj@multi_array.Array([size_, n])
+            obj@multi_array.Range(size_, x_min, x_max);
             obj.m = length(x_min);
             obj.n = n;
-            obj.domain = multi_array.Range(size_, x_min, x_max);
+            obj.tables = multi_array.Array.empty(0, 1);
+            for i = 1 : obj.n
+                obj.tables(i, 1) = multi_array.Array(size_);
+            end
             if nargin == 5
                 obj.set_func(func);
             end
@@ -37,8 +39,8 @@ classdef LUT < multi_array.Array
             %SET_FUNC(obj, func) Fill LUT with given function
             %   
             %   Function func must map [m x 1] to [n x 1].
-            for ind_x = 1 : numel(obj.domain)
-                x = obj.domain.conv(ind_x, 'Ind', 'Val');
+            for ind_x = 1 : numel(obj)
+                x = obj.conv(ind_x, 'Ind', 'Val');
                 obj.set(ind_x, 'Ind', func(x));
             end
         end
@@ -69,23 +71,23 @@ classdef LUT < multi_array.Array
             if nargin < 3, fmt = 'Val'; end
             
             % Extrapolation
-            x = obj.domain.conv(pos, fmt, 'Val');
+            x = obj.conv(pos, fmt, 'Val');
             switch extrap
                 case 'NaN'
-                    if ~obj.domain.has(x)
+                    if ~obj.has(x)
                         y = NaN(obj.n, 1);
                         return
                     end
                     
                 case 'Nearest'
-                    x = obj.domain.limit(x);
+                    x = obj.limit(x);
                     
                 otherwise
                     error('Invalid extrapolation: %s', extrap)
             end
             
             % Interpolation
-            sub_x = obj.domain.conv(x, 'Val', 'Sub');
+            sub_x = obj.conv(x, 'Val', 'Sub');
             switch interp
                 case 'Linear'
                     % Subscript range
@@ -102,8 +104,7 @@ classdef LUT < multi_array.Array
                             sub_x(i) = sub_x_rng(i, bitget(k-1, obj.m+1-i) + 1);
                         end
                         for sub_y = 1 : obj.n
-                            y(sub_y, k) = get@multi_array.Array(...
-                                obj, [sub_x; sub_y], 'Sub');
+                            y(sub_y, k) = obj.tables(sub_y).get(sub_x, 'Sub');
                         end
                     end
                     
@@ -122,8 +123,7 @@ classdef LUT < multi_array.Array
                     % Get from LUT
                     y = zeros(obj.n, 1);
                     for sub_y = 1 : obj.n
-                        y(sub_y) = get@multi_array.Array(...
-                            obj, [sub_x; sub_y], 'Sub');
+                        y(sub_y) = obj.tables(sub_y).get(sub_x, 'Sub');
                     end
                     
                 otherwise
@@ -139,9 +139,9 @@ classdef LUT < multi_array.Array
             %   SET(obj, val, 'Val', y) Set by continuous value
             %   
             %   For 'Val', val is rounded to nearest subscript
-            sub_x = round(obj.domain.conv(pos, fmt, 'Sub'));
+            sub_x = round(obj.conv(pos, fmt, 'Sub'));
             for sub_y = 1 : obj.n
-                set@multi_array.Array(obj, [sub_x; sub_y], 'Sub', y(sub_y));
+                obj.tables(sub_y).set(sub_x, 'Sub', y(sub_y));
             end
         end
     end

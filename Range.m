@@ -28,7 +28,7 @@ classdef Range < multi_array.Abstract
             obj@multi_array.Abstract(size_);
             obj.val_mins = val_mins;
             obj.val_maxs = val_maxs;
-            obj.sub_to_val = (val_maxs - val_mins) ./ (size_.' - 1);
+            obj.sub_to_val = (val_maxs - val_mins) ./ (obj.size_.' - 1);
             obj.val_to_sub = 1 ./ obj.sub_to_val;
         end
         

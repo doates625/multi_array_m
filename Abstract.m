@@ -6,7 +6,6 @@ classdef (Abstract) Abstract < handle
     properties (Access = protected)
         size_;      % Size array [int]
         numel_;     % Element count [int]
-        rank_;      % Dimension count [int]
         sub_to_ind; % Sub to Ind array [double]
         ind_to_sub; % Ind to Sub array [double]
     end
@@ -22,7 +21,6 @@ classdef (Abstract) Abstract < handle
             % Construction
             obj.size_ = size_;
             obj.numel_ = prod(size_);
-            obj.rank_ = length(size_);
             obj.sub_to_ind = cumprod([1, size_(1:end-1)]).';
             obj.ind_to_sub = 1 ./ obj.sub_to_ind;
         end
@@ -59,19 +57,9 @@ classdef (Abstract) Abstract < handle
             end
         end
         
-        function s = size(obj)
-            %s = SIZE(obj) Get size array
-            s = obj.size_;
-        end
-        
         function n = numel(obj)
             %n = NUMEL(obj) Get element count
             n = obj.numel_;
-        end
-        
-        function r = rank(obj)
-            %r = RANK(obj) Get dimension count
-            r = obj.rank_;
         end
     end
     
