@@ -4,17 +4,22 @@ classdef (Abstract) Abstract < handle
     %   Author: Dan Oates (WPI Class of 2020)
     
     properties (Access = protected)
-        size_;      % Size array
-        numel_;     % Element count
-        rank_;      % Dimension count
-        sub_to_ind; % Sub to Ind array
-        ind_to_sub; % Ind to Sub array
+        size_;      % Size array [int]
+        numel_;     % Element count [int]
+        rank_;      % Dimension count [int]
+        sub_to_ind; % Sub to Ind array [double]
+        ind_to_sub; % Ind to Sub array [double]
     end
     
     methods (Access = public)
         function obj = Abstract(size_)
             %obj = ABSTRACT(size_) Construct abstract of given size
+            
+            % Format size
             if iscolumn(size_), size_ = size_.'; end
+            if length(size_) == 1, size_ = [size_, 1]; end
+            
+            % Construction
             obj.size_ = size_;
             obj.numel_ = prod(size_);
             obj.rank_ = length(size_);

@@ -4,10 +4,10 @@ classdef Range < multi_array.Abstract
     %   Author: Dan Oates (WPI Class of 2020)
     
     properties (Access = protected)
-        val_mins;    % Min dim values
-        val_maxs;    % Max dim values
-        sub_to_val;  % Sub to Val array
-        val_to_sub;  % Val to Sub array
+        val_mins;    % Min dim values [double]
+        val_maxs;    % Max dim values [double]
+        sub_to_val;  % Sub to Val array [double]
+        val_to_sub;  % Val to Sub array [double]
     end
     
     methods (Access = public)
@@ -78,9 +78,9 @@ classdef Range < multi_array.Abstract
             elseif fmt1 == PosFmt.Val && fmt2 == PosFmt.Sub
                 pos2 = obj.conv_val_sub(pos1);
             elseif fmt1 == PosFmt.Ind && fmt2 == PosFmt.Val
-                pos2 = obj.conv_sub_val(obj.conv_ind_sub(pos1));
+                pos2 = obj.conv_ind_val(pos1);
             elseif fmt1 == PosFmt.Val && fmt2 == PosFmt.Ind
-                pos2 = obj.conv_sub_ind(obj.conv_val_sub(pos1));
+                pos2 = obj.conv_val_ind(pos1);
             else
                 pos2 = conv@multi_array.Abstract(obj, pos1, fmt1, fmt2);
             end
@@ -96,6 +96,16 @@ classdef Range < multi_array.Abstract
         function pos2 = conv_val_sub(obj, pos1)
             %pos2 = CONV_VAL_SUB(obj, pos1) Convert Val to Sub
             pos2 = obj.val_to_sub .* (pos1 - obj.val_mins) + 1;
+        end
+        
+        function pos2 = conv_ind_val(obj, pos1)
+            %pos2 = CONV_IND_VAL(obj, pos1) Convert Ind to Val
+            pos2 = obj.conv_sub_val(obj.conv_ind_sub(pos1));
+        end
+        
+        function pos2 = conv_val_ind(obj, pos1)
+            %pos2 = CONV_VAL_IND(obj, pos1) Convert Val to Ind
+            pos2 = obj.conv_sub_ind(obj.conv_val_sub(pos1));
         end
     end
 end

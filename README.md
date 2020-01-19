@@ -9,6 +9,7 @@ package are described below:
 - Abstract : Superclass for multi-array objects
 - Array : Class of data-holding multi-array
 - Range : Class for mapping discrete to continuous subscripts
+- LUT : Class for function lookup tables with interpolation
 - PosFmt : Enumeration of position formats
 
 The multi-array classes support three different position formats:

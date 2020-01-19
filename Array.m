@@ -17,9 +17,9 @@ classdef Array < multi_array.Abstract
             %   - data = Init data [double, default = 0]
             obj@multi_array.Abstract(size_);
             if nargin < 2
-                data = zeros(size_);
+                data = zeros(obj.size_);
             else
-                if ~isequal(size_, size(data))
+                if ~isequal(obj.size_, size(data))
                     error('Data size mismatch.');
                 end
             end
