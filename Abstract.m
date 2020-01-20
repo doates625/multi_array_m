@@ -39,22 +39,15 @@ classdef (Abstract) Abstract < handle
             %   - pos2 = Output position
             %   
             %   Valid formats: 'Ind', 'Sub'
-            
-            % Imports
-            import('multi_array.PosFmt');
-            
-            % Format args
-            [pos1, fmt1, fmt2] = obj.fmt_conv_args(pos1, fmt1, fmt2);
-            
-            % Conversions
-            if fmt1 == fmt2
+            if isrow(pos1), pos1 = pos1.'; end
+            if strcmp(fmt1, fmt2)
                 pos2 = pos1;
-            elseif fmt1 == PosFmt.Ind && fmt2 == PosFmt.Sub
+            elseif strcmp(fmt1, 'Ind') && strcmp(fmt2, 'Sub')
                 pos2 = obj.conv_ind_sub(pos1);
-            elseif fmt1 == PosFmt.Sub && fmt2 == PosFmt.Ind
+            elseif strcmp(fmt1, 'Sub') && strcmp(fmt2, 'Ind')
                 pos2 = obj.conv_sub_ind(pos1);
             else
-                error('Invalid: %s to %s', char(fmt1), char(fmt2));
+                error('Invalid: %s to %s', fmt1, fmt2);
             end
         end
     end
@@ -68,17 +61,6 @@ classdef (Abstract) Abstract < handle
         function pos2 = conv_sub_ind(obj, pos1)
             %pos2 = CONV_SUB_IND(obj, pos1) Convert Sub to Ind
             pos2 = dot(obj.sub_to_ind, pos1 - 1) + 1;
-        end
-    end
-    
-    methods (Access = protected, Static)
-        function [pos1, fmt1, fmt2] = fmt_conv_args(pos1, fmt1, fmt2)
-            %[pos1, fmt1, fmt2] = FMT_CONV_ARGS(pos1, fmt1, fmt2)
-            %   Format args of conv methods
-            import('multi_array.PosFmt');
-            if isrow(pos1), pos1 = pos1.'; end
-            if isa(fmt1, 'char'), fmt1 = PosFmt(fmt1); end
-            if isa(fmt2, 'char'), fmt2 = PosFmt(fmt2); end
         end
     end
 end

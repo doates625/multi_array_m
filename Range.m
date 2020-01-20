@@ -66,23 +66,16 @@ classdef Range < multi_array.Abstract
             %   - pos2 = Output position
             %   
             %   Valid formats: 'Ind', 'Sub', 'Val'
-            
-            % Imports
-            import('multi_array.PosFmt');
-            
-            % Format args
-            [pos1, fmt1, fmt2] = obj.fmt_conv_args(pos1, fmt1, fmt2);
-            
-            % Conversions
-            if fmt1 == fmt2
+            if isrow(pos1), pos1 = pos1.'; end
+            if strcmp(fmt1, fmt2)
                 pos2 = pos1;
-            elseif fmt1 == PosFmt.Sub && fmt2 == PosFmt.Val
+            elseif strcmp(fmt1, 'Sub') && strcmp(fmt2, 'Val')
                 pos2 = obj.conv_sub_val(pos1);
-            elseif fmt1 == PosFmt.Val && fmt2 == PosFmt.Sub
+            elseif strcmp(fmt1, 'Val') && strcmp(fmt2, 'Sub')
                 pos2 = obj.conv_val_sub(pos1);
-            elseif fmt1 == PosFmt.Ind && fmt2 == PosFmt.Val
+            elseif strcmp(fmt1, 'Ind') && strcmp(fmt2, 'Val')
                 pos2 = obj.conv_ind_val(pos1);
-            elseif fmt1 == PosFmt.Val && fmt2 == PosFmt.Ind
+            elseif strcmp(fmt1, 'Val') && strcmp(fmt2, 'Ind')
                 pos2 = obj.conv_val_ind(pos1);
             else
                 pos2 = conv@multi_array.Abstract(obj, pos1, fmt1, fmt2);
