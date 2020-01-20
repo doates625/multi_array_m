@@ -38,34 +38,34 @@ classdef LUT < multi_array.Range
             %   Function func must map [m x 1] to [n x 1].
             for ind_x = 1 : obj.numel_
                 x = obj.conv(ind_x, 'Ind', 'Val');
-                obj.set(ind_x, 'Ind', func(x));
+                obj.set(ind_x, func(x), 'Ind');
             end
         end
         
-        function y = get(obj, pos, fmt, interp, extrap)
-            %y = GET(obj, x, fmt, interp, extrap)
+        function y = get(obj, pos, interp, extrap, fmt)
+            %y = GET(obj, pos, interp, extrap, fmt)
             %   Get value from LUT
             %   
             %   Inputs:
             %   - pos = LUT position
-            %   - fmt = Position format [char]
-            %       'Val' = Continuous value [default]
-            %       'Sub' = Subscript array
-            %       'Ind' = Single index
             %   - interp = Interpolation [char]
             %       'Linear' = Linear [default]
             %       'Nearest' = Nearest neighbor
             %   - extrap = Extrapolation [char]
             %       'NaN' = NaN return vector [default]
             %       'Nearest' = Nearest neighbor
+            %   - fmt = Position format [char]
+            %       'Val' = Continuous value [default]
+            %       'Sub' = Subscript array
+            %       'Ind' = Single index
             %   
             %   Outputs:
             %   - y = Output vector [n x 1]
             
             % Default args
-            if nargin < 5, extrap = 'NaN'; end
-            if nargin < 4, extrap = 'Linear'; end
-            if nargin < 3, fmt = 'Val'; end
+            if nargin < 3, interp = 'Linear'; end
+            if nargin < 4, extrap = 'NaN'; end
+            if nargin < 5, fmt = 'Val'; end
             
             % Extrapolation
             x = obj.conv(pos, fmt, 'Val');
@@ -75,10 +75,8 @@ classdef LUT < multi_array.Range
                         y = NaN(obj.y_dim, 1);
                         return
                     end
-                    
                 case 'Nearest'
                     x = obj.limit(x);
-                    
                 otherwise
                     error('Invalid extrapolation: %s', extrap)
             end
@@ -130,14 +128,16 @@ classdef LUT < multi_array.Range
             end
         end
         
-        function set(obj, pos, fmt, y)
+        function set(obj, pos, y, fmt)
             %SET Set value in LUT
             %   
-            %   SET(obj, ind, 'Ind', y) Set by single index
-            %   SET(obj, sub, 'Sub', y) Set by subscript array
-            %   SET(obj, val, 'Val', y) Set by continuous value
+            %   SET(obj, ind, y, 'Ind') Set by single index
+            %   SET(obj, sub, y, 'Sub') Set by subscript array
+            %   SET(obj, val, y, 'Val') Set by continuous value
+            %   SET(obj, val, y) Set by continuous value
             %   
             %   For 'Val', val is rounded to nearest subscript
+            if nargin < 4, fmt = 'Val'; end
             sub_x = round(obj.conv(pos, fmt, 'Sub'));
             for sub_y = 1 : obj.y_dim
                 obj.y_arr(sub_y).set(sub_x, 'Sub', y(sub_y));

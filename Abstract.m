@@ -17,10 +17,9 @@ classdef (Abstract) Abstract < handle
     methods (Access = public)
         function obj = Abstract(size_)
             %obj = ABSTRACT(size_) Construct abstract of given size
-            obj.rank_ = length(size_);
             if iscolumn(size_), size_ = size_.'; end
-            if length(size_) == 1, size_ = [size_, 1]; end
             obj.size_ = size_;
+            obj.rank_ = length(size_);
             obj.numel_ = prod(size_);
             obj.sub_to_ind = cumprod([1, size_(1:end-1)]).';
             obj.ind_to_sub = 1 ./ obj.sub_to_ind;

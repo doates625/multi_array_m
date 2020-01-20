@@ -96,12 +96,14 @@ classdef Range < multi_array.Abstract
         
         function pos2 = conv_ind_val(obj, pos1)
             %pos2 = CONV_IND_VAL(obj, pos1) Convert Ind to Val
-            pos2 = obj.conv_sub_val(obj.conv_ind_sub(pos1));
+            pos3 = obj.conv_ind_sub(pos1);
+            pos2 = obj.conv_sub_val(pos3);
         end
         
         function pos2 = conv_val_ind(obj, pos1)
             %pos2 = CONV_VAL_IND(obj, pos1) Convert Val to Ind
-            pos2 = obj.conv_sub_ind(obj.conv_val_sub(pos1));
+            pos3 = obj.conv_val_sub(pos1);
+            pos2 = obj.conv_sub_ind(round(pos3));
         end
     end
 end

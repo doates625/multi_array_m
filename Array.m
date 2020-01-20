@@ -16,10 +16,13 @@ classdef Array < multi_array.Abstract
             %   - size_ = Array size [int]
             %   - data = Init data [double, default = 0]
             obj@multi_array.Abstract(size_);
+            if length(size_) < 2
+                size_ = [size_, 1];
+            end
             if nargin < 2
-                data = zeros(obj.size_);
+                data = zeros(size_);
             else
-                if ~isequal(obj.size_, size(data))
+                if ~isequal(size_, size(data))
                     error('Data size mismatch.');
                 end
             end
