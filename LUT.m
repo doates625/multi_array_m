@@ -20,13 +20,20 @@ classdef LUT < multi_array.Range
             %   - func = Filling function
             %   
             %   See also: SET_FUNC
+            
+            % Imports
+            import('multi_array.Array');
+            
+            % Construction
             obj@multi_array.Range(x_rng.vals_min, x_rng.vals_max, x_rng.size_);
             obj.x_dim = x_rng.rank_;
             obj.y_dim = y_dim;
-            obj.y_arr = multi_array.Array.empty(0, 1);
+            obj.y_arr = Array.empty(0, 1);
             for i = 1 : obj.y_dim
-                obj.y_arr(i, 1) = multi_array.Array(obj.size_);
+                obj.y_arr(i, 1) = Array(obj.size_);
             end
+            
+            % Optional function set
             if nargin == 3
                 obj.set_func(func);
             end
