@@ -53,6 +53,18 @@ classdef Range < multi_array.Abstract
             c = all(and(val >= obj.vals_min, val <= obj.vals_max));
         end
         
+        function arr = get_arr(obj, dim)
+            %arr = GET_ARR(obj, dim)
+            %   Get array of dimension samples
+            %   
+            %   Inputs:
+            %   - dim = Dimension [int, [1, obj.rank_]]
+            arr = linspace(...
+                obj.vals_min(dim), ...
+                obj.vals_max(dim), ...
+                obj.size_(dim));
+        end
+        
         function pos2 = conv(obj, pos1, fmt1, fmt2)
             %pos2 = CONV(obj, pos1, fmt1, fmt2)
             %   Convert between position formats
