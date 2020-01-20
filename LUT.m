@@ -10,25 +10,25 @@ classdef LUT < multi_array.Range
     end
     
     methods (Access = public)
-        function obj = LUT(size_, x_min, x_max, n, func)
-            %obj = LUT(size_, x_min, x_max, n, func)
+        function obj = LUT(x_min, x_max, x_size, n, func)
+            %obj = LUT(x_min, x_max, x_size, n, func)
             %   Construct LUT
             %   
             %   Inputs:
-            %   - size_ = Array size [int, [m x 1]]
             %   - x_min = Min input values [double, [m x 1]]
             %   - x_max = Max input values [double, [m x 1]]
+            %   - x_size = Array size [int, [m x 1]]
             %   - n = Output dimension [int]
             %   - func = Populating function
             %   
             %   Function func must map [m x 1 to [n x 1].
             %   If no func is given, the table is zeroed.
-            obj@multi_array.Range(size_, x_min, x_max);
+            obj@multi_array.Range(x_min, x_max, x_size);
             obj.m = length(x_min);
             obj.n = n;
             obj.tables = multi_array.Array.empty(0, 1);
             for i = 1 : obj.n
-                obj.tables(i, 1) = multi_array.Array(size_);
+                obj.tables(i, 1) = multi_array.Array(obj.size_);
             end
             if nargin == 5
                 obj.set_func(func);

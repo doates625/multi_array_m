@@ -4,31 +4,31 @@ classdef Range < multi_array.Abstract
     %   Author: Dan Oates (WPI Class of 2020)
     
     properties (Access = protected)
-        val_mins;    % Min dim values [double]
-        val_maxs;    % Max dim values [double]
+        vals_min;    % Min dim values [double]
+        vals_max;    % Max dim values [double]
         sub_to_val;  % Sub to Val array [double]
         val_to_sub;  % Val to Sub array [double]
     end
     
     methods (Access = public)
-        function obj = Range(size_, val_mins, val_maxs)
-            %obj = RANGE(size_, val_mins, val_maxs)
+        function obj = Range(vals_min, vals_max, size_)
+            %obj = RANGE(vals_min, vals_max, size_)
             %   Construct multi-range object
             %   
             %   Inputs:
+            %   - vals_min = Min dim values [double]
+            %   - vals_max = Max dim values [double]
             %   - size_ = Array size [int]
-            %   - val_mins = Min dim values [double]
-            %   - val_maxs = Max dim values [double]
             
             % Format inputs
-            if isrow(val_mins), val_mins = val_mins.'; end
-            if isrow(val_maxs), val_maxs = val_maxs.'; end
+            if isrow(vals_min), vals_min = vals_min.'; end
+            if isrow(vals_max), vals_max = vals_max.'; end
             
             % Construction
             obj@multi_array.Abstract(size_);
-            obj.val_mins = val_mins;
-            obj.val_maxs = val_maxs;
-            obj.sub_to_val = (val_maxs - val_mins) ./ (obj.size_.' - 1);
+            obj.vals_min = vals_min;
+            obj.vals_max = vals_max;
+            obj.sub_to_val = (vals_max - vals_min) ./ (obj.size_.' - 1);
             obj.val_to_sub = 1 ./ obj.sub_to_val;
         end
         
@@ -42,12 +42,12 @@ classdef Range < multi_array.Abstract
         
         function val = limit(obj, val)
             %val = LIMIT(obj, val) Limit val to range
-            val = min(max(obj.val_mins, val), obj.val_maxs);
+            val = min(max(obj.vals_min, val), obj.vals_max);
         end
         
         function c = has(obj, val)
             %c = HAS(obj, val) Check if range contains val
-            c = all(and(val >= obj.val_mins, val <= obj.val_maxs));
+            c = all(and(val >= obj.vals_min, val <= obj.vals_max));
         end
         
         function pos2 = conv(obj, pos1, fmt1, fmt2)
@@ -90,12 +90,12 @@ classdef Range < multi_array.Abstract
     methods (Access = protected)
         function pos2 = conv_sub_val(obj, pos1)
             %pos2 = CONV_SUB_VAL(obj, pos1) Convert Sub to Val
-            pos2 = obj.sub_to_val .* (pos1 - 1) + obj.val_mins;
+            pos2 = obj.sub_to_val .* (pos1 - 1) + obj.vals_min;
         end
         
         function pos2 = conv_val_sub(obj, pos1)
             %pos2 = CONV_VAL_SUB(obj, pos1) Convert Val to Sub
-            pos2 = obj.val_to_sub .* (pos1 - obj.val_mins) + 1;
+            pos2 = obj.val_to_sub .* (pos1 - obj.vals_min) + 1;
         end
         
         function pos2 = conv_ind_val(obj, pos1)
