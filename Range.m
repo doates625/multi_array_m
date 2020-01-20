@@ -3,9 +3,12 @@ classdef Range < multi_array.Abstract
     %   
     %   Author: Dan Oates (WPI Class of 2020)
     
-    properties (Access = protected)
+    properties (SetAccess = protected)
         vals_min;    % Min dim values [double]
         vals_max;    % Max dim values [double]
+    end
+    
+    properties (Access = protected)
         sub_to_val;  % Sub to Val array [double]
         val_to_sub;  % Val to Sub array [double]
     end

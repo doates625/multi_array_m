@@ -4,33 +4,30 @@ classdef LUT < multi_array.Range
     %   Author: Dan Oates (WPI Class of 2020)
     
     properties (SetAccess = protected)
-        m;      % Input dimension [int]
-        n;      % Output dimension [int]
-        tables; % Output tables [multi_array.Array]
+        x_dim;  % Input dimension [int]
+        y_dim;  % Output dimension [int]
+        y_arr;  % Output arrays [multi_array.Array]
     end
     
     methods (Access = public)
-        function obj = LUT(x_min, x_max, x_size, n, func)
-            %obj = LUT(x_min, x_max, x_size, n, func)
+        function obj = LUT(x_rng, y_dim, func)
+            %obj = LUT(x_rng, y_dim, func)
             %   Construct LUT
             %   
             %   Inputs:
-            %   - x_min = Min input values [double, [m x 1]]
-            %   - x_max = Max input values [double, [m x 1]]
-            %   - x_size = Array size [int, [m x 1]]
-            %   - n = Output dimension [int]
-            %   - func = Populating function
+            %   - x_rng = Input range [multi_array.Range, rank_ = m]
+            %   - y_dim = Output dimension [int]
+            %   - func = Filling function
             %   
-            %   Function func must map [m x 1 to [n x 1].
-            %   If no func is given, the table is zeroed.
-            obj@multi_array.Range(x_min, x_max, x_size);
-            obj.m = length(x_min);
-            obj.n = n;
-            obj.tables = multi_array.Array.empty(0, 1);
-            for i = 1 : obj.n
-                obj.tables(i, 1) = multi_array.Array(obj.size_);
+            %   See also: SET_FUNC
+            obj@multi_array.Range(x_rng.vals_min, x_rng.vals_max, x_rng.size_);
+            obj.x_dim = x_rng.rank_;
+            obj.y_dim = y_dim;
+            obj.y_arr = multi_array.Array.empty(0, 1);
+            for i = 1 : obj.y_dim
+                obj.y_arr(i, 1) = multi_array.Array(obj.size_);
             end
-            if nargin == 5
+            if nargin == 3
                 obj.set_func(func);
             end
         end
@@ -39,7 +36,7 @@ classdef LUT < multi_array.Range
             %SET_FUNC(obj, func) Fill LUT with given function
             %   
             %   Function func must map [m x 1] to [n x 1].
-            for ind_x = 1 : numel(obj)
+            for ind_x = 1 : obj.numel_
                 x = obj.conv(ind_x, 'Ind', 'Val');
                 obj.set(ind_x, 'Ind', func(x));
             end
@@ -75,7 +72,7 @@ classdef LUT < multi_array.Range
             switch extrap
                 case 'NaN'
                     if ~obj.has(x)
-                        y = NaN(obj.n, 1);
+                        y = NaN(obj.y_dim, 1);
                         return
                     end
                     
@@ -97,20 +94,22 @@ classdef LUT < multi_array.Range
                     sub_x_rng = [sub_x_min, sub_x_max];
                     
                     % Lattice points of y
-                    y = zeros(obj.n, 2^obj.m);
-                    for k = 1 : 2^obj.m
-                        sub_x = zeros(obj.m, 1);
-                        for i = 1 : obj.m
-                            sub_x(i) = sub_x_rng(i, bitget(k-1, obj.m+1-i) + 1);
+                    n_lat = 2^obj.x_dim;
+                    y = zeros(obj.y_dim, n_lat);
+                    for k = 1 : n_lat
+                        sub_x = zeros(obj.x_dim, 1);
+                        for i = 1 : obj.x_dim
+                            sub_x(i) = sub_x_rng(...
+                                i, bitget(k-1, obj.x_dim+1-i) + 1);
                         end
-                        for sub_y = 1 : obj.n
-                            y(sub_y, k) = obj.tables(sub_y).get(sub_x, 'Sub');
+                        for sub_y = 1 : obj.y_dim
+                            y(sub_y, k) = obj.y_arr(sub_y).get(sub_x, 'Sub');
                         end
                     end
                     
                     % Interpolate on each dim of x
                     x_del = mod(sub_x_mid, 1);
-                    for i = 1 : obj.m
+                    for i = 1 : obj.x_dim
                         y1 = y(:, 1 : end/2);
                         y2 = y(:, end/2 + 1 : end);
                         y = y1*(1 - x_del(i)) + y2*x_del(i);
@@ -121,9 +120,9 @@ classdef LUT < multi_array.Range
                     sub_x = round(sub_x);
                     
                     % Get from LUT
-                    y = zeros(obj.n, 1);
-                    for sub_y = 1 : obj.n
-                        y(sub_y) = obj.tables(sub_y).get(sub_x, 'Sub');
+                    y = zeros(obj.y_dim, 1);
+                    for sub_y = 1 : obj.y_dim
+                        y(sub_y) = obj.y_arr(sub_y).get(sub_x, 'Sub');
                     end
                     
                 otherwise
@@ -140,8 +139,8 @@ classdef LUT < multi_array.Range
             %   
             %   For 'Val', val is rounded to nearest subscript
             sub_x = round(obj.conv(pos, fmt, 'Sub'));
-            for sub_y = 1 : obj.n
-                obj.tables(sub_y).set(sub_x, 'Sub', y(sub_y));
+            for sub_y = 1 : obj.y_dim
+                obj.y_arr(sub_y).set(sub_x, 'Sub', y(sub_y));
             end
         end
     end

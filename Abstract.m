@@ -3,9 +3,13 @@ classdef (Abstract) Abstract < handle
     %   
     %   Author: Dan Oates (WPI Class of 2020)
     
-    properties (Access = protected)
+    properties (SetAccess = protected)
         size_;      % Size array [int]
+        rank_;      % Dimension count [int]
         numel_;     % Element count [int]
+    end
+    
+    properties (Access = protected)
         sub_to_ind; % Sub to Ind array [double]
         ind_to_sub; % Ind to Sub array [double]
     end
@@ -13,12 +17,9 @@ classdef (Abstract) Abstract < handle
     methods (Access = public)
         function obj = Abstract(size_)
             %obj = ABSTRACT(size_) Construct abstract of given size
-            
-            % Format size
+            obj.rank_ = length(size_);
             if iscolumn(size_), size_ = size_.'; end
             if length(size_) == 1, size_ = [size_, 1]; end
-            
-            % Construction
             obj.size_ = size_;
             obj.numel_ = prod(size_);
             obj.sub_to_ind = cumprod([1, size_(1:end-1)]).';
@@ -55,11 +56,6 @@ classdef (Abstract) Abstract < handle
             else
                 error('Invalid: %s to %s', char(fmt1), char(fmt2));
             end
-        end
-        
-        function n = numel(obj)
-            %n = NUMEL(obj) Get element count
-            n = obj.numel_;
         end
     end
     
