@@ -185,6 +185,9 @@ classdef LUT < multi_array.Range
                 y = LUT.read(file, 4*y_dim, 'single');
                 lut.set(ind, y, 'Ind');
             end
+            
+            % Close file
+            fclose(file);
         end
     end
     
