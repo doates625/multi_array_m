@@ -151,4 +151,56 @@ classdef LUT < multi_array.Range
             end
         end
     end
+    
+    methods (Access = public, Static)
+        function lut = load(name)
+            %lut = LOAD(name)
+            %   Load LUT from binary file
+            %   
+            %   Inputs:
+            %   - name = File name ['*.bin']
+            %   
+            %   Outputs:
+            %   - lut = Lookup table [multi_array.LUT]
+            
+            % Imports
+            import('multi_array.Range');
+            import('multi_array.LUT');
+            
+            % Read range and size
+            file = fopen(name, 'r');
+            rank_ = LUT.read(file, 4, 'uint32');
+            size_ = LUT.read(file, 4*rank_, 'uint32');
+            mins_ = LUT.read(file, 4*rank_, 'single');
+            maxs_ = LUT.read(file, 4*rank_, 'single');
+            y_dim = LUT.read(file, 4, 'uint32');
+            
+            % Make empty LUT
+            range_ = Range(mins_, maxs_, size_);
+            lut = LUT(range_, y_dim);
+            
+            % Read in data
+            numel_ = prod(size_);
+            for ind = 1 : numel_
+                y = LUT.read(file, 4*y_dim, 'single');
+                lut.set(ind, y, 'Ind');
+            end
+        end
+    end
+    
+    methods (Access = protected, Static)
+        function data = read(file, n, type_)
+            %data = READ(file, n, type_)
+            %   Read data from file
+            %   
+            %   Inputs:
+            %   - file = File [fopen(...)]
+            %   - n = Number of bytes
+            %   - type_ = Data type
+            %   
+            %   Outputs:
+            %   - data = Read data
+            data = double(typecast(uint8(fread(file, n)), type_));
+        end
+    end
 end
